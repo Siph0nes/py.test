@@ -1,64 +1,88 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-H = 1
-k = 1
-m = 2
-q = 0.04
+# Constants
 h = 0.1
-T = 20
+H = 0.5
+k1 = 5
+k2 = 50
+k3 = 0.5
+m = 1
+x0 = 20
+z0 = 0
+N = 20
 
-x0 = 0
-v0 = 0
+def f(t, x, z):
+    return z
 
-def f(t):
-    return -np.cos(0.5*t)
+def g(t, x, z, k):
+    return -k/m * x
 
-def dxdt(t, x, v):
-    return v
+def runge_kutta_4(x0, z0, h, N, k):
+    t = 0
+    x = x0
+    z = z0
+    x_values = [x0]
+    z_values = [z0]
 
-def dvdt(t, x, v):
-    return (f(t) - 2*q*v - (k/m)*x)
+    for i in range(N):
+        k1x = h * f(t, x, z)
+        k1z = h * g(t, x, z, k)
 
-def runge_kutta(t, h, x, v):
-    for i in range(len(t)-1):
-        k1x = h * dxdt(t[i], x[i], v[i])
-        k1v = h * dvdt(t[i], x[i], v[i])
+        k2x = h * f(t + h/2, x + k1x/2, z + k1z/2)
+        k2z = h * g(t + h/2, x + k1x/2, z + k1z/2, k)
 
-        k2x = h * dxdt(t[i] + h/2, x[i] + k1x/2, v[i] + k1v/2)
-        k2v = h * dvdt(t[i] + h/2, x[i] + k1x/2, v[i] + k1v/2)
+        k3x = h * f(t + h/2, x + k2x/2, z + k2z/2)
+        k3z = h * g(t + h/2, x + k2x/2, z + k2z/2, k)
 
-        k3x = h * dxdt(t[i] + h/2, x[i] + k2x/2, v[i] + k2v/2)
-        k3v = h * dvdt(t[i] + h/2, x[i] + k2x/2, v[i] + k2v/2)
+        k4x = h * f(t + h, x + k3x, z + k3z)
+        k4z = h * g(t + h, x + k3x, z + k3z, k)
 
-        k4x = h * dxdt(t[i] + h, x[i] + k3x, v[i] + k3v)
-        k4v = h * dvdt(t[i] + h, x[i] + k3x, v[i] + k3v)
+        x += (k1x + 2*k2x + 2*k3x + k4x) / 6
+        z += (k1z + 2*k2z + 2*k3z + k4z) / 6
 
-        x[i+1] = x[i] + (k1x + 2*k2x + 2*k3x + k4x) / 6
-        v[i+1] = v[i] + (k1v + 2*k2v + 2*k3v + k4v) / 6
+        x_values.append(x)
+        z_values.append(z)
 
-    return x, v
+    return x_values, z_values
 
-t = np.arange(0, T, h)
+k = 5
+x_values1, z_values1 = runge_kutta_4(x0, z0, h, N, k)
 
-x = np.zeros(len(t))
-v = np.zeros(len(t))
-
-x[0] = x0
-v[0] = v0
-
-x, v = runge_kutta(t, h, x, v)
-
-plt.figure(figsize=(10,5))
-plt.plot(t, x, label='x(t)')
-plt.plot(t, v, label='v(t)')
-plt.legend(loc='best')
-plt.xlabel('Час')
-plt.ylabel('Значення')
-plt.title('Рішення задачі Коші методом Рунге-Кутта')
+# Plot for k = 5
+plt.figure(figsize=(12, 8))
+plt.subplot(3, 1, 1)
+plt.plot(x_values1, label='x(t) for k=5')
+plt.plot(z_values1, label='z(t) for k=5')
+plt.xlabel('Time Steps')
+plt.ylabel('Values')
+plt.title('Runge-Kutta 4th Order Method for k = 5')
+plt.legend()
 plt.grid(True)
 
-plt.xlim(0, 1)
-plt.ylim(0, -1)
+k = 50
+x_values2, z_values2 = runge_kutta_4(x0, z0, h, N, k)
 
+plt.subplot(3, 1, 2)
+plt.plot(x_values2, label='x(t) for k=50')
+plt.plot(z_values2, label='z(t) for k=50')
+plt.xlabel('Time Steps')
+plt.ylabel('Values')
+plt.title('Runge-Kutta 4th Order Method for k = 50')
+plt.legend()
+plt.grid(True)
+
+k = 0.5
+x_values3, z_values3 = runge_kutta_4(x0, z0, h, N, k)
+
+plt.subplot(3, 1, 3)
+plt.plot(x_values3, label='x(t) for k=0.5')
+plt.plot(z_values3, label='z(t) for k=0.5')
+plt.xlabel('Time Steps')
+plt.ylabel('Values')
+plt.title('Runge-Kutta 4th Order Method for k = 0.5')
+plt.legend()
+plt.grid(True)
+
+plt.tight_layout()
 plt.show()
