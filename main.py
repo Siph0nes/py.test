@@ -11,35 +11,34 @@ m = 1
 x0 = 20
 z0 = 0
 N = 20
-
-def f(t, x, z):
+def f(tk, x, z):
     return z
 
 def g(t, x, z, k):
     return -k/m * x
 
 def runge_kutta_4(x0, z0, h, N, k):
-    t = 0
+    tk = 0
     x = x0
     z = z0
     x_values = [x0]
     z_values = [z0]
 
     for i in range(N):
-        k1x = h * f(t, x, z)
-        k1z = h * g(t, x, z, k)
+        k1x = h * f(tk, x, z)
+        k1z = h * g(tk, x, z, k)
 
-        k2x = h * f(t + h/2, x + k1x/2, z + k1z/2)
-        k2z = h * g(t + h/2, x + k1x/2, z + k1z/2, k)
+        k2x = h * f(tk + h/2, x + k1x/2, z + k1z/2)
+        k2z = h * g(tk + h/2, x + k1x/2, z + k1z/2, k)
 
-        k3x = h * f(t + h/2, x + k2x/2, z + k2z/2)
-        k3z = h * g(t + h/2, x + k2x/2, z + k2z/2, k)
+        k3x = h * f(tk + h/2, x + k2x/2, z + k2z/2)
+        k3z = h * g(tk + h/2, x + k2x/2, z + k2z/2, k)
 
-        k4x = h * f(t + h, x + k3x, z + k3z)
-        k4z = h * g(t + h, x + k3x, z + k3z, k)
+        k4x = h * f(tk + h, x + k3x, z + k3z)
+        k4z = h * g(tk + h, x + k3x, z + k3z, k)
 
-        x += (k1x + 2*k2x + 2*k3x + k4x) / 6
-        z += (k1z + 2*k2z + 2*k3z + k4z) / 6
+        x += (k1x + 2 * k2x + 2 * k3x + k4x) / 6
+        z += (k1z + 2 * k2z + 2 * k3z + k4z) / 6
 
         x_values.append(x)
         z_values.append(z)
@@ -49,7 +48,6 @@ def runge_kutta_4(x0, z0, h, N, k):
 k = 5
 x_values1, z_values1 = runge_kutta_4(x0, z0, h, N, k)
 
-# Plot for k = 5
 plt.figure(figsize=(12, 8))
 plt.subplot(3, 1, 1)
 plt.plot(x_values1, label='x(t) for k=5')
