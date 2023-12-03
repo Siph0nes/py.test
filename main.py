@@ -1,105 +1,76 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-h = 0.1
-H = 0.5
-k1 = 5
-k2 = 50
-k3 = 0.5
-m = 1
-x0 = 20
-z0 = 0
-N = 20
-def f(tk):
+h, h2, H, m, y0, z0, T = 0.01, 0.001, 0.5, 1, 20, 0, 15
+k1, k2, k3 = 5, 50, 0.5
+
+def funcOption5(tk):
     return 0
 
-def K(zk):
-    return zk * h
-def L(tk,zk,xk, k):
-    return h*((f(tk)-H*zk-xk*k)/m)
-def dx(K1, K2, K3, K4):
-    return (K1 + 2 * K2 + 2 * K3 + K4)/6
-
-def dz(L1, L2, L3, L4):
-    return (L1 + 2 * L2 + 2 * L3 + L4) / 6
-
-def runge_kutta(h, H, k, m, x0,z0):
-    xk = x0
+def runge_kutta(k, h):
+    yk = y0
     zk = z0
 
-    q_values = []
-
-    x_values = [x0]
+    x_values = [y0]
     z_values = [z0]
 
-    for tk in np.arange(0, 2, 0.1):
-        K1 = K(zk)
-        L1 = L(tk, zk, xk, k)
+    for tk in np.arange(0, T, h):
+        k1 = zk * h
+        L1 = h * ((funcOption5(tk) - H * zk - k * yk) / m)
 
-        xk2 = xk + h/2
-        zk2 = zk + L1/2
+        k2 = h * (zk + L1 / 2.0)
+        L2 = h * ((funcOption5(tk) - H * (zk + L1 / 2.0) - k * (yk + k1 / 2.0)) / m)
 
-        K2 = K(zk2)
-        L2 = L(tk, zk2, xk2, k)
+        k3 = h * (zk + L2 / 2.0)
+        L3 = h * ((funcOption5(tk) - H * (zk + L2 / 2.0) - k * (yk + k2 / 2.0)) / m)
 
-        xk3 = xk2 + h / 2
-        zk3 = zk2 + L2 / 2
+        k4 = h * (zk + L3)
+        L4 = h * ((funcOption5(tk) - H * (zk + L3) - k * (yk + k2)) / m)
 
-        K3 = K(zk3)
-        L3 = L(tk, zk3, xk3, k)
+        dy = (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0
+        dz = (L1 + 2.0 * L2 + 2.0 * L3 + L4) / 6.0
 
-        xk4 = xk3 + h / 2
-        zk4 = zk3 + L3 / 2
+        tky = yk + dy
+        tkz = zk + dz
 
-        K4 = K(zk4)
-        L4 = L(tk, zk4, xk4, k)
+        x_values.append(tky)
+        z_values.append(tkz)
 
-        dx1 = dx(K1,K2,K3,K4)
-        dz1 = dz(L1, L2, L3, L4)
-
-        x1k = dx1 + xk
-        z1k = dz1 + zk
-
-        x_values.append(x1k)
-        z_values.append(z1k)
-
-        xk = x1k
-        zk = z1k
-
+        yk = tky
+        zk = tkz
 
     return x_values, z_values
 
-x_values1, z_values1 = runge_kutta(h, H, k1, m, x0,z0)
+x_values1, z_values1 = runge_kutta(k1, h)
 
 plt.figure(figsize=(12, 15))
 plt.subplot(3, 1, 1)
-plt.plot(x_values1, label='x(t) for k=5', marker='o')
-plt.plot(z_values1, label='z(t) for k=5', marker='o')
+plt.plot(x_values1, label=f'x(t) for k={k1}', marker='o')
+plt.plot(z_values1, label=f'z(t) for k={k1}', marker='o')
 plt.xlabel('Time Steps')
 plt.ylabel('Values')
-plt.title('Runge-Kutta 4th Order Method for k = 5')
+plt.title(f'Runge-Kutta 4th Order Method for k = {k2}')
 plt.legend()
 plt.grid(True)
 
-x_values2, z_values2 = runge_kutta(h, H, k2, m, x0,z0)
+x_values2, z_values2 = runge_kutta(k2, h2)
 
 plt.subplot(3, 1, 2)
-plt.plot(x_values2, label='x(t) for k=50', marker='o')
-plt.plot(z_values2, label='z(t) for k=50', marker='o')
+plt.plot(x_values2, label=f'x(t) for k={k2}', marker='o')
+plt.plot(z_values2, label=f'z(t) for k={k2}', marker='o')
 plt.xlabel('Time Steps')
 plt.ylabel('Values')
-plt.title('Runge-Kutta 4th Order Method for k = 50')
+plt.title(f'Runge-Kutta 4th Order Method for k = {k2}')
 plt.legend()
 plt.grid(True)
 
-x_values3, z_values3 = runge_kutta(h, H, k3, m, x0,z0)
-
+x_values3, z_values3 = runge_kutta(k3, h)
 plt.subplot(3, 1, 3)
-plt.plot(x_values3, label='x(t) for k=0.5', marker='o')
-plt.plot(z_values3, label='z(t) for k=0.5', marker='o')
+plt.plot(x_values3, label=f'x(t) for k={k3}', marker='o')
+plt.plot(z_values3, label=f'z(t) for k={k3}', marker='o')
 plt.xlabel('Time Steps')
 plt.ylabel('Values')
-plt.title('Runge-Kutta 4th Order Method for k = 0.5')
+plt.title(f'Runge-Kutta 4th Order Method for k = {k3}')
 plt.legend()
 plt.grid(True)
 
